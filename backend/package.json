@@ -1,7 +1,6 @@
 {
   "name": "mtn-momo-loan-cameroon",
   "version": "2.0.0",
-  "description": "MTN MoMo Loan Application - Cameroon Version with Bird SMS",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
