@@ -742,4 +742,4 @@ app.listen(PORT, () => {
     console.log(`📁 Serving frontend from: ${path.join(__dirname, '../frontend')}`);
     console.log(`💾 Data directory: ${DATA_DIR}`);
     console.log(`🔗 Visit: http://localhost:${PORT}`);
-}); 
+});
