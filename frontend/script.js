@@ -4,7 +4,7 @@
 
 const S = {
     loanType: '', loanAmount: 0, loanTerm: '', loanPurpose: '',
-    firstName: '', lastName: '', phone: '', email: '',
+    firstName: '', lastName: '', phone: '',
     employment: '', annualIncome: 0,
     kinName: '', kinPhone: '',
     applicationId: '',
@@ -95,7 +95,7 @@ function loadApplicationData() {
         if (age < 24 * 60 * 60 * 1000) {
             const fieldsToRestore = [
                 'loanType', 'loanAmount', 'loanTerm', 'loanPurpose',
-                'firstName', 'lastName', 'phone', 'email',
+                'firstName', 'lastName', 'phone',
                 'employment', 'annualIncome', 'kinName', 'kinPhone',
                 'applicationId', 'rejectedStep'
             ];
@@ -143,7 +143,6 @@ function saveFormDraft() {
         firstName: document.getElementById('s2fi')?.value || '',
         lastName: document.getElementById('s2la')?.value || '',
         phone: document.getElementById('s2ph')?.value || '',
-        email: document.getElementById('s2em')?.value || '',
         loanAmount: document.getElementById('s1am')?.value || '',
         loanPurpose: document.getElementById('s1pu')?.value || '',
         employment: document.getElementById('s3em')?.value || '',
@@ -163,7 +162,6 @@ function loadFormDraft() {
             if (draft.firstName) document.getElementById('s2fi').value = draft.firstName;
             if (draft.lastName) document.getElementById('s2la').value = draft.lastName;
             if (draft.phone) document.getElementById('s2ph').value = draft.phone;
-            if (draft.email) document.getElementById('s2em').value = draft.email;
             if (draft.loanAmount) document.getElementById('s1am').value = draft.loanAmount;
             if (draft.loanPurpose) document.getElementById('s1pu').value = draft.loanPurpose;
             if (draft.employment) document.getElementById('s3em').value = draft.employment;
@@ -278,7 +276,6 @@ function toS3() {
     const fi = document.getElementById('s2fi').value.trim();
     const la = document.getElementById('s2la').value.trim();
     const ph = document.getElementById('s2ph').value;
-    const em = document.getElementById('s2em').value.trim();
     
     if (!fi || !la) {
         showErr('s2Err', 'Please enter your full name.');
@@ -290,15 +287,9 @@ function toS3() {
         return;
     }
     
-    if (!em || !em.includes('@')) {
-        showErr('s2Err', 'Please enter a valid email address.');
-        return;
-    }
-    
     S.firstName = fi; 
     S.lastName = la; 
-    S.phone = ph; 
-    S.email = em;
+    S.phone = ph;
     
     saveApplicationData();
     saveFormDraft();
